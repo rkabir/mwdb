@@ -1,0 +1,3 @@
+include COPYING
+include README.markdown
+recursive-include lib *.py
