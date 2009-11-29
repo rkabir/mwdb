@@ -23,13 +23,14 @@ from __future__ import unicode_literals
 class PageText(object):
     """A Text."""
 
-    def __unicode__(self):
-        return '{0}({1})'.format(self.__class__.__name__,
-                                 self.page.title.encode('utf8'))
-
     def __repr__(self):
-        return '{0}({1})'.format(self.__class__.__name__,
-                                 repr(self.page.title))
+        return '{0.__class__.__name__}({0.title!r})'.format(self)
+
+    def __str__(self):
+        return unicode(self).encode('utf8')
+
+    def __unicode__(self):
+        return '{0.__class__.__name__}({0.title})'.format(self)
 
     @property
     def timestamp(self):
@@ -38,12 +39,12 @@ class PageText(object):
 class Revision(object):
     """A Revision"""
 
-    def __unicode__(self):
-        return '{0}({1}, {2})'.format(self.__class__.__name__,
-                                      self.page.title.encode('utf8'),
-                                      self.timestamp)
-
     def __repr__(self):
-        return '{0}({1}, {2})'.format(self.__class__.__name__,
-                                      repr(self.page.title),
-                                      self.timestamp)
+        return '{0.__class__.__name__}({0.title!r}, {0.timestamp})'.format(
+            self)
+
+    def __str__(self):
+        return unicode(self).encode('utf8')
+
+    def __unicode__(self):
+        return '{0.__class__.__name__}({0.title}, {0.timestamp})'.format(self)

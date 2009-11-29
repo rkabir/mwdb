@@ -32,8 +32,13 @@ class Wikipedia(object):
         self.language = language
 
     def __repr__(self):
-        representation = 'Wikipedia({0.language})'.format(self)
-        return representation.encode('utf8')
+        return 'Wikipedia({0.language})'.format(self)
+
+    def __str__(self):
+        return unicode(self).encode('utf8')
+
+    def __unicode__(self):
+        return 'Wikipedia({0.language})'.format(self)
 
     def iter_articles(self, batch_size=500):
         """Article generator.

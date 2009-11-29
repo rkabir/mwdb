@@ -35,15 +35,14 @@ _log = logging.getLogger(__name__)
 class PageLink(object):
     """A PageLink"""
 
-    def __unicode__(self):
-        return '{0}_PageLink({1:d}, {2})'.format(
-            self.language.upper().encode('utf8'),
-            self.source_id,
-            self.title.encode('utf8'))
-
     def __repr__(self):
-        return '{0}_PageLink({1})'.format(repr(self.language.upper()),
-                                          repr(self.title))
+        return '{0.__class__.__name__}({0.title!r})'.format(self)
+
+    def __str__(self):
+        return unicode(self).encode('utf8')
+
+    def __unicode__(self):
+        return '{0.__class__.__name__}({0.title})'.format(self)
 
     @property
     def language(self):
@@ -53,30 +52,28 @@ class PageLink(object):
 class CategoryLink(object):
     """A CategoryLink"""
 
-    def __unicode__(self):
-        return '{0}({1})'.format(
-            self.__class__.__name__,
-            self.title.encode('utf8'))
     def __repr__(self):
-        return '{0}({1})'.format(
-            self.__class__.__name__,
-            repr(self.title))
+        return '{0.__class__.__name__}({0.title!r})'.format(self)
+
+    def __str__(self):
+        return unicode(self).encode('utf8')
+
+    def __unicode__(self):
+        return '{0.__class__.__name__}({0.title})'.format(self)
 
 
 class LanguageLink(object):
     """A LanguageLink"""
 
-    def __unicode__(self):
-        return '{0}({1}, {2})'.format(
-            self.__class__.__name__,
-            self.lang.encode('utf8'),
-            self.title.encode('utf8'))
-
     def __repr__(self):
-        return '{0}({1}, {2})'.format(
-            self.__class__.__name__,
-            self.lang.encode('utf8'),
-            repr(self.title))
+        return '{0.__class__.__name__}({0.lang!r}, {0.title!r})'.format(
+            self)
+
+    def __str__(self):
+        return unicode(self).encode('utf8')
+
+    def __unicode__(self):
+        return '{0.__class__.__name__}({0.lang}, {0.title})'.format(self)
 
 
 class Page(object):
@@ -84,18 +81,17 @@ class Page(object):
 
     This is the base class for all Wikipedia page types.
     """
-    def __unicode__(self):
-        return '{0}({1})'.format(
-            self.__class__.__name__,
-            self.title.encode('utf8'))
 
     def __repr__(self):
-        return '{0}({1})'.format(
-            self.__class__.__name__,
-            repr(self.title))
+        return '{0.__class__.__name__}({0.title!r})'.format(self)
 
-    @property
-    def translations(self):
+    def __str__(self):
+        return unicode(self).encode('utf8')
+
+    def __unicode__(self):
+        return '{0.__class__.__name__}({0.title})'.format(self)
+
+    def iter_translations(self):
         raise NotImplementedError('Implement this method in a subclass')
 
     @property
