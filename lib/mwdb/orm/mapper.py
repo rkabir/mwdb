@@ -136,7 +136,7 @@ def init_mappers(metadata, language):
                             foreign_keys = [catlinks.c.cl_from,
                                             catlinks.c.cl_to],
                             lazy = 'dynamic',
-                            backref = backref('subcategory_query',
+                            backref = backref('_subcategory_query',
                                               lazy = 'dynamic'),
                         ),
                         'latest_text': relation(
