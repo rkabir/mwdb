@@ -42,7 +42,7 @@ def init_mappers(metadata, language):
     revisions = metadata.tables['revision']
 
     # you might think wtf now... but do not fear and have a look at:
-        # http://www.sqlalchemy.org/trac/wiki/UsageRecipes/EntityName
+    # http://www.sqlalchemy.org/trac/wiki/UsageRecipes/EntityName
 
     # the basic idea is to get anonymous subclasses for each language. the
     # class name is that of the base class prefixed with the language

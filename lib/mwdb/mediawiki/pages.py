@@ -49,6 +49,7 @@ class PageLink(object):
     def language(self):
         return object_mapper(self).language
 
+
 class CategoryLink(object):
     """A CategoryLink"""
 
@@ -60,6 +61,7 @@ class CategoryLink(object):
         return '{0}({1})'.format(
             self.__class__.__name__,
             repr(self.title))
+
 
 class LanguageLink(object):
     """A LanguageLink"""
@@ -75,6 +77,7 @@ class LanguageLink(object):
             self.__class__.__name__,
             self.lang.encode('utf8'),
             repr(self.title))
+
 
 class Page(object):
     """A Page.
@@ -99,7 +102,7 @@ class Page(object):
     def raw_text(self):
         return self.latest_text.text
 
-    def get_categories_startwith(self, string, batch_size=42):
+    def iter_categories_startwith(self, string, batch_size=42):
         """All categories of this Page whose titles start with the given
         string.
 
@@ -114,7 +117,7 @@ class Page(object):
         return self._category_query.filter(
             c_cls.title.like(u'{0}%%'.format(string))).yield_per(batch_size)
 
-    def get_categories_endwith(self, string, batch_size=42):
+    def iter_categories_endwith(self, string, batch_size=42):
         """All categories of this Page whose titles end with the given
         string.
 
@@ -129,7 +132,7 @@ class Page(object):
         return self._category_query.filter(
             c_cls.title.like(u'%%{0}'.format(string))).yield_per(batch_size)
 
-    def get_categories_contain(self, string):
+    def iter_categories_contain(self, string, batch_size=42):
         """All categories of this Page whose titles contain the given
         string.
 
@@ -142,27 +145,25 @@ class Page(object):
         """
         c_cls = mwdb.databases[self.language].classes['Category']
         return self._category_query.filter(
-            c_cls.title.like(u'%%{0}%%'.format(string))).all()
+            c_cls.title.like(u'%%{0}%%'.format(string))).yield_per(batch_size)
+
 
 class Article(Page):
     """An Article"""
-    @property
-    def linked_article_titles(self):
-        return (t.title for t in self.article_links)
-
-    @property
-    def linked_articles(self):
-        return itertools.ifilter(lambda x:x, self._linked_articles)
-
-    @property
-    def linked_from_articles(self):
-        return itertools.ifilter(lambda x:x, self._linked_from_articles)
 
     _linked_articles = association_proxy('article_links', 'goal')
     _linked_from_articles = association_proxy('article_links_in', 'source_page')
 
-    @property
-    def translations(self):
+    def iter_linked_article_titles(self):
+        return (t.title for t in self.article_links)
+
+    def iter_linked_articles(self):
+        return itertools.ifilter(lambda x:x, self._linked_articles)
+
+    def iter_linked_from_articles(self):
+        return itertools.ifilter(lambda x:x, self._linked_from_articles)
+
+    def iter_translations(self):
         present_langs = mwdb.databases.keys()
         return (article for article in
                 (mwdb.Wikipedia(ll.lang.replace('-', '_')).get_article(ll.title)
@@ -170,14 +171,15 @@ class Article(Page):
                  if ll.lang.replace('-', '_') in present_langs)
                 if article)
 
+
 class Template(Page):
     pass
+
 
 class Category(Page):
     """A Category"""
 
-    @property
-    def translations(self):
+    def iter_translations(self):
         present_langs = mwdb.databases.keys()
         return (cat for cat in
                 (mwdb.Wikipedia(ll.lang.replace('-', '_')).get_category(ll.title)
@@ -185,7 +187,7 @@ class Category(Page):
                  if ll.lang.replace('-', '_') in present_langs)
                 if cat)
 
-    def get_subcategories_startwith(self, string, batch_size=42):
+    def iter_subcategories_startwith(self, string, batch_size=42):
         """All subcategories whose titles start with the given string.
 
         :param string:  Category title must start with this string.
@@ -199,7 +201,7 @@ class Category(Page):
         return self._subcategory_query.filter(
             c_cls.title.like('{0}%%'.format(string))).yield_per(batch_size)
 
-    def get_subcategories_endwith(self, string, batch_size=42):
+    def iter_subcategories_endwith(self, string, batch_size=42):
         """All subcategories whose titles end with the given string.
 
         :param string:  Category title must end with this string.
@@ -213,7 +215,7 @@ class Category(Page):
         return self._subcategory_query.filter(
             c_cls.title.like('%%{0}'.format(string))).yield_per(batch_size)
 
-    def get_subcategories_contain(self, string):
+    def iter_subcategories_contain(self, string, batch_size=42):
         """All subcategories whose titles contain the given string.
 
         :param string:  Category title must contain this string.
@@ -227,7 +229,7 @@ class Category(Page):
         return self._subcategory_query.filter(
             c_cls.title.like(u'%%{0}%%'.format(string))).yield_per(batch_size)
 
-    def get_member_page_startwith(self, string, batch_size=42):
+    def iter_member_page_startwith(self, string, batch_size=42):
         """All pages that belong to this category whose titles start with the
         given string.
 
@@ -242,7 +244,7 @@ class Category(Page):
         return self._member_page_query.filter(
             c_cls.title.like('{0}%%'.format(string))).yield_per(batch_size)
 
-    def get_member_page_endwith(self, string, batch_size=42):
+    def iter_member_page_endwith(self, string, batch_size=42):
         """All pages that belong to this category whose titles end with the
         given string.
 
@@ -257,7 +259,7 @@ class Category(Page):
         return self._member_page_query.filter(
             c_cls.title.like(u'%%{0}'.format(string))).yield_per(batch_size)
 
-    def get_member_page_contain(self, string, batch_size=42):
+    def iter_member_page_contain(self, string, batch_size=42):
         """All pages that belong to this category whose titles contain the
         given string.
 

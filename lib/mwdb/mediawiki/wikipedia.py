@@ -35,7 +35,7 @@ class Wikipedia(object):
         representation = 'Wikipedia({0.language})'.format(self)
         return representation.encode('utf8')
 
-    def articles(self, batch_size=500):
+    def iter_articles(self, batch_size=500):
         """Article generator.
 
         This method returns all articles in this Wikipedia language version.
@@ -48,7 +48,7 @@ class Wikipedia(object):
         session = mwdb.databases[self.language].session
         return session.query(art_cls).yield_per(batch_size)
 
-    def categories(self, batch_size=500):
+    def iter_categories(self, batch_size=500):
         """Category generator.
 
         This method returns all articles in this Wikipedia language version.
