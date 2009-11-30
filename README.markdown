@@ -14,80 +14,77 @@ Features
 * Distributed databases
 * Supports [PostgreSQL][] and [MySQL][]
 * Object Relational mapper written in [SQLAlchemy][]
-* Markup handling with [mwlib][]
 * Database, table and index administration for PostgreSQL
 * Open source :-)
-
-Install
--------
-
-Just move `./lib/mwdb` into your `$PYTHONPATH`
 
 Example
 -------
 
-You need to import mwdb and mwdb.orm:
+You need to import mwdb:
 
-    In [1]: import mwdb, mwdb.orm
+    >>>  import mwdb
 
-Initialising databases is done with `mwdb.orm.databases.discover`.
-This method takes five arguments, namely `vendor` (`postgresql` or
-`mysql`), dialect (`psycopg2`, `mysqldb`, ...), the name of the
-database user, her password and the host the databases are found on.
-`discover` will find all MediaWiki databases that adhere to a naming
-scheme following the regular expression
+Initialising databases is done with `mwdb.databases.discover`. This method
+takes five arguments, namely `vendor` (`postgresql` or `mysql`), dialect
+(`psycopg2`, `mysqldb`, ...), the name of the database user, her password and
+the host the databases are found on. `discover` will find all MediaWiki
+databases that adhere to a naming scheme following the regular expression
 `wp_(?P<lang>\w+)_(?P<date>\d+)`.
 
-If you follow a different naming scheme you can easily change this by
-setting `mwdb.orm.databases.db_name_regex` to the regular expression of your
-choice prior to discovery. It is of uttermost importance that the provided
-regular expressions has *named* groups `lang` and `date`.
+If you follow a different naming scheme you can easily change this by setting
+`mwdb.databases.db_name_regex` to the regular expression of your choice prior
+to discovery. It is of uttermost importance that the provided regular
+expressions has the *named* groups `lang` and `date`.
 
 If you decided not to follow the date format in the Wikipedia dumps (%Y%m%d)
 you can set a new format on `mwdb.orm.databases.db_date_format`, but why would
 you do that?
 
-    In [2]: mwdb.orm.databases.discover_databases(
-                'postgresql', 'psycopg2', 'user','password','host')
+    >>> mwdb.databases.discover_databases(
+    ... 'postgresql', 'psycopg2', 'user', 'password', 'host')
 
 Access to Wikipedia articles is provided through instances of
-`mwdb.Wikipedia('language'):
+`mwdb.Wikipedia:
 
-    In [3]: hh = mwdb.Wikipedia('de').get_article(u'Hamburg')
+    >>> hh = mwdb.Wikipedia('de').get_article(u'Hamburg')
 
-Article instances provide access to categories, linked articles,
-different link types and even articles in other languages this article
-is linked to:
+Article instances provide access to categories, linked articles, different link
+types and even the corresponding article in other languages:
 
-    In [4]: hh.translated_articles
-    Out[4]: [NL_Article(u'Hamburg'), SW_Article(u'Hamburg')]
+    >>> list(hh.iter_translations())
+    [AF_Article(u'Hamburg'),
+    ALS_Article(u'Hamburg'), ...,
+     ZH_Article(u'\u6c49\u5821'),
+     ZH_MIN_NAN_Article(u'Hamburg'),
+     ZH_YUE_Article(u'\u6f22\u5821')]
 
-    In [5]: hh.translated_articles[0].language
-    Out[5]: 'nl'
+    >>> list(hh.iter_translations())[102].language
+    u'zh'
 
-    In [6]: hh.translated_articles[0].linked_articles
-    Out[6]:
-    [NL_Article(u'2008'),
-     NL_Article(u'Alfred_Schnittke'),
-     NL_Article(u'Alfred_Wegener'),
-     NL_Article(u'Amsterdam'),
-     NL_Article(u'Anastas\xc3\xada_Keles\xc3\xaddou'),
-     ...
-     NL_Article(u'Wolgast')]
+    >>> zh_hh = list(hh.iter_translations())[102]
+    >>> for art in zh_hh.iter_linked_articles():
+    ...     print art
+    ...
+    ZH_Article(1520年代)
+    ZH_Article(1768年)
+    ZH_Article(1874年)
+    ZH_Article(1876年)
+    ...
+    ZH_Article(马赛)
+    ZH_Article(高地德语)
+    ZH_Article(黑森)
 
-    In [7]: hh.categories
-    Out[7]:
-    [DE_Category(u'Gemeinde_in_Deutschland'),
+    >>> hh.categories
+    [DE_Category(u'Bundesland_(Deutschland)'),
+     DE_Category(u'Deutsche_Landeshauptstadt'),
+     DE_Category(u'Gemeinde_in_Deutschland'),
      DE_Category(u'Hamburg'),
      DE_Category(u'Hansestadt'),
      DE_Category(u'Kreisfreie_Stadt_in_Deutschland'),
-     DE_Category(u'Land_(Deutschland)'),
      DE_Category(u'Millionenstadt'),
      DE_Category(u'Ort_mit_Seehafen'),
      DE_Category(u'Reichsstadt'),
-     DE_Category(u'Wikipedia:Lesenswert'),
-     DE_Category(u'Wikipedia:Quellen_fehlen')]
-     ...
+     ... ]
 
 [PostgreSQL] : http://www.postgresql.org
 [MySQL]      : http://www.mysql.com
