@@ -1,9 +1,10 @@
 mwdb
 ====
 
-mwdb is a [Python][] library for working with data in [MediaWiki][] databases
-like those from Wikipedia. It is useful for researchers in the fields of
-Computational Linguistics, Machine Learning, Knowledge Representation ...
+mwdb is a [Python] [py] library for working with data in [MediaWiki] [mw]
+databases like those from [Wikipedia] [wp]. It is useful for researchers in the
+fields of Computational Linguistics, Machine Learning, Knowledge Representation
+...
 
 Features
 --------
@@ -12,8 +13,8 @@ Features
 * No conversion of Wikipedia database dumps needed
 * Automatic database discovery
 * Distributed databases
-* Supports [PostgreSQL][] and [MySQL][]
-* Object Relational mapper written in [SQLAlchemy][]
+* Supports [PostgreSQL] [psql] and [MySQL] [mysql]
+* Object Relational mapper written in [SQLAlchemy] [sa]
 * Database, table and index administration for PostgreSQL
 * Open source :-)
 
@@ -86,10 +87,9 @@ types and even the corresponding article in other languages:
      DE_Category(u'Reichsstadt'),
      ... ]
 
-[PostgreSQL] : http://www.postgresql.org
-[MySQL]      : http://www.mysql.com
-[SQLAlchemy] : http://www.sqlalchemy.org
-[mwlib]      : http://code.pediapress.com/wiki/wiki/mwlib
-[Python]     : http://python.org
-[Wikipedia]  : http://wikipedia.org
-[MediaWiki]  : http://www.mediawiki.org
+[psql]: http://www.postgresql.org
+[mysql]: http://www.mysql.com
+[sa]: http://www.sqlalchemy.org
+[py]: http://python.org
+[wp]: http://wikipedia.org
+[mw]: http://www.mediawiki.org
