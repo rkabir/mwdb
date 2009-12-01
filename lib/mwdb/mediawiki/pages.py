@@ -109,9 +109,9 @@ class Page(object):
                             simultaneously from the database.
         :type batch_size:   int
         """
-        c_cls = mwdb.databases[self.language].classes['Category']
+        cls = mwdb.databases.get_database(self.language).get_class('Category')
         return self._category_query.filter(
-            c_cls.title.like(u'{0}%%'.format(string))).yield_per(batch_size)
+            cls.title.like(u'{0}%%'.format(string))).yield_per(batch_size)
 
     def iter_categories_endwith(self, string, batch_size=42):
         """All categories of this Page whose titles end with the given
@@ -124,9 +124,9 @@ class Page(object):
                             simultaneously from the database.
         :type batch_size:   int
         """
-        c_cls = mwdb.databases[self.language].classes['Category']
+        cls = mwdb.databases.get_database(self.language).get_class('Category')
         return self._category_query.filter(
-            c_cls.title.like(u'%%{0}'.format(string))).yield_per(batch_size)
+            cls.title.like(u'%%{0}'.format(string))).yield_per(batch_size)
 
     def iter_categories_contain(self, string, batch_size=42):
         """All categories of this Page whose titles contain the given
@@ -139,9 +139,9 @@ class Page(object):
                             simultaneously from the database.
         :type batch_size:   int
         """
-        c_cls = mwdb.databases[self.language].classes['Category']
+        cls = mwdb.databases.get_database(self.language).get_class('Category')
         return self._category_query.filter(
-            c_cls.title.like(u'%%{0}%%'.format(string))).yield_per(batch_size)
+            cls.title.like(u'%%{0}%%'.format(string))).yield_per(batch_size)
 
 
 class Article(Page):
@@ -160,11 +160,10 @@ class Article(Page):
         return itertools.ifilter(lambda x:x, self._linked_from_articles)
 
     def iter_translations(self):
-        present_langs = mwdb.databases.keys()
         return (article for article in
                 (mwdb.Wikipedia(ll.lang.replace('-', '_')).get_article(ll.title)
                  for ll in self.language_links
-                 if ll.lang.replace('-', '_') in present_langs)
+                 if ll.lang.replace('-', '_') in mwdb.databases.languages)
                 if article)
 
 
@@ -176,11 +175,10 @@ class Category(Page):
     """A Category"""
 
     def iter_translations(self):
-        present_langs = mwdb.databases.keys()
         return (cat for cat in
                 (mwdb.Wikipedia(ll.lang.replace('-', '_')).get_category(ll.title)
                  for ll in self.language_links
-                 if ll.lang.replace('-', '_') in present_langs)
+                 if ll.lang.replace('-', '_') in mwdb.databases.languages)
                 if cat)
 
     def iter_subcategories_startwith(self, string, batch_size=42):
@@ -193,9 +191,9 @@ class Category(Page):
                             simultaneously from the database.
         :type batch_size:   int
         """
-        c_cls = mwdb.databases[self.language].classes['Category']
+        cls = mwdb.databases.get_database(self.language).get_class('Category')
         return self._subcategory_query.filter(
-            c_cls.title.like('{0}%%'.format(string))).yield_per(batch_size)
+            cls.title.like('{0}%%'.format(string))).yield_per(batch_size)
 
     def iter_subcategories_endwith(self, string, batch_size=42):
         """All subcategories whose titles end with the given string.
@@ -207,9 +205,9 @@ class Category(Page):
                             simultaneously from the database.
         :type batch_size:   int
         """
-        c_cls = mwdb.databases[self.language].classes['Category']
+        cls = mwdb.databases.get_database(self.language).get_class('Category')
         return self._subcategory_query.filter(
-            c_cls.title.like('%%{0}'.format(string))).yield_per(batch_size)
+            cls.title.like('%%{0}'.format(string))).yield_per(batch_size)
 
     def iter_subcategories_contain(self, string, batch_size=42):
         """All subcategories whose titles contain the given string.
@@ -221,9 +219,9 @@ class Category(Page):
                             simultaneously from the database.
         :type batch_size:   int
         """
-        c_cls = mwdb.databases[self.language].classes['Category']
+        cls = mwdb.databases.get_database(self.language).get_class('Category')
         return self._subcategory_query.filter(
-            c_cls.title.like(u'%%{0}%%'.format(string))).yield_per(batch_size)
+            cls.title.like(u'%%{0}%%'.format(string))).yield_per(batch_size)
 
     def iter_member_page_startwith(self, string, batch_size=42):
         """All pages that belong to this category whose titles start with the
@@ -236,9 +234,9 @@ class Category(Page):
                             simultaneously from the database.
         :type batch_size:   int
         """
-        c_cls = mwdb.databases[self.language].classes['Category']
+        cls = mwdb.databases.get_database(self.language).get_class('Article')
         return self._member_page_query.filter(
-            c_cls.title.like('{0}%%'.format(string))).yield_per(batch_size)
+            cls.title.like('{0}%%'.format(string))).yield_per(batch_size)
 
     def iter_member_page_endwith(self, string, batch_size=42):
         """All pages that belong to this category whose titles end with the
@@ -251,9 +249,9 @@ class Category(Page):
                             simultaneously from the database.
         :type batch_size:   int
         """
-        c_cls = mwdb.databases[self.language].classes['Article']
+        cls = mwdb.databases.get_database(self.language).get_class('Article')
         return self._member_page_query.filter(
-            c_cls.title.like(u'%%{0}'.format(string))).yield_per(batch_size)
+            cls.title.like(u'%%{0}'.format(string))).yield_per(batch_size)
 
     def iter_member_page_contain(self, string, batch_size=42):
         """All pages that belong to this category whose titles contain the
@@ -266,6 +264,6 @@ class Category(Page):
                             simultaneously from the database.
         :type batch_size:   int
         """
-        c_cls = mwdb.databases[self.language].classes['Category']
+        cls = mwdb.databases.get_database(self.language).get_class('Article')
         return self._member_page_query.filter(
-            c_cls.title.like('%%{0}%%'.format(string))).yield_per(batch_size)
+            cls.title.like('%%{0}%%'.format(string))).yield_per(batch_size)

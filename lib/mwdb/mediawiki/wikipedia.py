@@ -49,9 +49,9 @@ class Wikipedia(object):
                             simultaneously from the database.
         :type batch_size:   int
         """
-        art_cls = mwdb.databases[self.language].classes['Article']
-        session = mwdb.databases[self.language].session
-        return session.query(art_cls).yield_per(batch_size)
+        lang_db = mwdb.databases.get_database(self.language)
+        return lang_db.session.query(lang_db.get_class('Article')).yield_per(
+            batch_size)
 
     def iter_categories(self, batch_size=500):
         """Category generator.
@@ -62,24 +62,24 @@ class Wikipedia(object):
                             simultaneously from the database.
         :type batch_size:   int
         """
-        art_cls = mwdb.databases[self.language].classes['Category']
-        session = mwdb.databases[self.language].session
-        return session.query(art_cls).yield_per(batch_size)
+        lang_db = mwdb.databases.get_database(self.language)
+        return lang_db.session.query(lang_db.get_class('Category')).yield_per(
+            batch_size)
 
     def get_article(self, title):
         title = markup.wikify(title)
-        cl = mwdb.databases[self.language].classes['Article']
-        session = mwdb.databases[self.language].session
+        lang_db = mwdb.databases.get_database(self.language)
         try:
-            return session.query(cl).filter_by(title=title).one()
+            return lang_db.session.query(
+                lang_db.get_class('Article')).filter_by(title=title).one()
         except orm_exc.NoResultFound, e:
             return None
 
     def get_category(self, title):
         title = markup.clean_title(title, self.language, 14)
-        cl = mwdb.databases[self.language].classes['Category']
-        session = mwdb.databases[self.language].session
+        lang_db = mwdb.databases.get_database(self.language)
         try:
-            return session.query(cl).filter_by(title=title).one()
+            return lang_db.session.query(
+                lang_db.get_class('Category')).filter_by(title=title).one()
         except orm_exc.NoResultFound, e:
             return None

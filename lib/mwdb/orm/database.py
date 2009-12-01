@@ -47,10 +47,8 @@ except ImportError, imp_err:
     ISOLATION_LEVEL_SERIALIZABLE = 2
 _log = logging.getLogger(__name__)
 
-__all__ = ['Databases', 'PostgreSQLDatabase', 'MySQLDatabase']
 
-
-class Databases(dict):
+class Databases(object):
     """Handler for multiple database connections.
 
     This class handles connections to wikipedia databases for multiple
@@ -67,13 +65,28 @@ class Databases(dict):
         :type db_name_regex:    string
         """
 
-        super(Databases, self).__init__(self)
+        super(Databases, self).__init__()
+
+        self._databases = {}
 
         self.date_format = db_date_format
         self.db_name_regex = db_name_regex
 
         self.pool_size = 0
         self.pool_recycle = 300
+
+    def __repr__(self):
+        return '{0.__class__.__name__}({0._databases!r})'.format(self)
+
+    def __str__(self):
+        return unicode(self).encode('utf8')
+
+    def __unicode__(self):
+        return '{0.__class__.__name__}({0._databases})'.format(self)
+
+    @property
+    def language(self):
+        return object_mapper(self).language
 
     @property
     def db_name_regex(self):
@@ -100,6 +113,10 @@ class Databases(dict):
     @date_format.deleter
     def date_format(self):
         del self._date_format
+
+    @property
+    def languages(self):
+        return self._databases.keys()
 
     @property
     def pool_size(self):
@@ -189,11 +206,38 @@ class Databases(dict):
 
         return databases
 
+    def add_database(self, database):
+        """Add given database to database collection.
+
+        :param database:    Database to add
+        :type database:     mwdb.orm.database.Database
+        """
+        self._databases[database.language] = database
+
+    def get_class(self, language, name):
+        """Get class with given name for language
+
+        :param language:    Language code of the wanted class
+        :type language:     str
+
+        :name name:         Name of the class (Article, Category, ...)
+        :type name:         string
+        """
+        return self.get_database(language).classes.get(name)
+
+    def get_database(self, language):
+        """Get database for given language
+
+        :param language:    Language code of the wanted database
+        :type language:     str
+        """
+        return self._databases.get(language)
+
     def language_date(self, language):
         """Get the database dump date for given language.
         """
-        return self._date_from_match(self._db_matcher.match(
-            self[language].name))
+        db = self.get_database(language)
+        return self._date_from_match(self._db_matcher.match(db.name))
 
     def discover(self, vendor, driver, user, password, host, reflect=True):
         """Discover wikipedia databases.
@@ -228,7 +272,7 @@ class Databases(dict):
 
             # do we have a newer database for this language already?
             # if yes -> skip this one
-            if lang in self:
+            if lang in self._databases:
                 existing_date = self.language_date(lang)
                 found_date = self._date_from_match(latest)
 
@@ -239,7 +283,7 @@ class Databases(dict):
                                         latest.group(0), latest.group('lang'))
             new_db.connect(reflect)
             new_db.create_mappers()
-            self[lang] = new_db
+            self.add_database(new_db)
 
 
 class Database(object):
@@ -471,6 +515,14 @@ class Database(object):
                 self, table_name))
             raise ValueError('Undefined Table: {0.name}.{1}'.format(
                 self, table_name))
+
+    def get_class(self, name):
+        """Get class with given name.
+
+        :name name:         Name of the class (Article, Category, ...)
+        :type name:         string
+        """
+        return self.classes.get(name)
 
 
 class PostgreSQLDatabase(Database):
