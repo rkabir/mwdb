@@ -239,7 +239,7 @@ class Databases(object):
         db = self.get_database(language)
         return self._date_from_match(self._db_matcher.match(db.name))
 
-    def discover(self, vendor, driver, user, password, host, reflect=True):
+    def discover(self, vendor, driver, user, password, host):
         """Discover wikipedia databases.
 
         This method will discover and activate wikipedia databases on the
@@ -259,10 +259,6 @@ class Databases(object):
 
         :param host:        Hostname (localhost, 127.0.0.1, ...)
         :type host:         string
-
-        :param reflect: Reflect database layout or load predefined table
-                        definitions
-        :type reflect:  bool
         """
         db = self._new_database(vendor, driver, user, password, host, None,
                                 None)
@@ -281,8 +277,6 @@ class Databases(object):
 
             new_db = self._new_database(vendor, driver, user, password, host,
                                         latest.group(0), latest.group('lang'))
-            new_db.connect(reflect)
-            new_db.create_mappers()
             self.add_database(new_db)
 
 
@@ -301,6 +295,10 @@ class Database(object):
         self.name = db_name
         self.language = language
 
+        self._session = None
+        self._Session = None
+        self._engine = None
+
         if self.vendor == 'postgresql':
             self._admin_engine = create_engine(
                 '{0.vendor}+{0.driver}://{0.user}:{0.password}@{0.host}' \
@@ -309,20 +307,22 @@ class Database(object):
             self._admin_engine = create_engine(
                 '{0.vendor}+{0.driver}://{0.user}:{0.password}@' \
                 '{0.host}'.format(self))
-        self._session = None
-        self._engine = None
 
         self.pool_size = 0
         self.pool_recycle = 300
-
 
     # ----------
     # Properties
 
     @property
     def session(self):
+        if self.engine is None:
+            self.connect()
+            self.create_mappers()
+
         if self._session is None:
             self._session = self._Session()
+
         return self._session
 
     @property
@@ -444,13 +444,8 @@ class Database(object):
     # -----------------------------------------
     # Common methods to all Database subclasses
 
-    def connect(self, reflect=True):
-        """Connect to database and initialise session
-
-        :param reflect: Reflect database layout or load pre defined table
-                        definitions
-        :type reflect:  bool
-        """
+    def connect(self):
+        """Connect to database and initialise session"""
         _log.debug('{0.name}: Connecting'.format(self))
         self._engine = create_engine(
             '{0.vendor}+{0.driver}://{0.user}:{0.password}@{0.host}' \
@@ -464,11 +459,7 @@ class Database(object):
         _log.debug('{0.name}: Create session and metadata'.format(self))
         self._Session = sessionmaker(bind=self.engine)
         self._metadata = MetaData(bind=self.engine)
-
-        if reflect:
-            self.reflect()
-        else:
-            self.tables_to_metadata()
+        self.reflect()
 
     def create_mappers(self):
         """Create mappers for this database"""
