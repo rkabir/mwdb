@@ -111,7 +111,7 @@ class Page(object):
         """
         cls = mwdb.databases.get_database(self.language).get_class('Category')
         return self._category_query.filter(
-            cls.title.like(u'{0}%%'.format(string))).yield_per(batch_size)
+            cls.title.like('{0}%%'.format(string))).yield_per(batch_size)
 
     def iter_categories_endwith(self, string, batch_size=42):
         """All categories of this Page whose titles end with the given
@@ -126,7 +126,7 @@ class Page(object):
         """
         cls = mwdb.databases.get_database(self.language).get_class('Category')
         return self._category_query.filter(
-            cls.title.like(u'%%{0}'.format(string))).yield_per(batch_size)
+            cls.title.like('%%{0}'.format(string))).yield_per(batch_size)
 
     def iter_categories_contain(self, string, batch_size=42):
         """All categories of this Page whose titles contain the given
@@ -141,7 +141,7 @@ class Page(object):
         """
         cls = mwdb.databases.get_database(self.language).get_class('Category')
         return self._category_query.filter(
-            cls.title.like(u'%%{0}%%'.format(string))).yield_per(batch_size)
+            cls.title.like('%%{0}%%'.format(string))).yield_per(batch_size)
 
 
 class Article(Page):
@@ -221,7 +221,7 @@ class Category(Page):
         """
         cls = mwdb.databases.get_database(self.language).get_class('Category')
         return self._subcategory_query.filter(
-            cls.title.like(u'%%{0}%%'.format(string))).yield_per(batch_size)
+            cls.title.like('%%{0}%%'.format(string))).yield_per(batch_size)
 
     def iter_member_page_startwith(self, string, batch_size=42):
         """All pages that belong to this category whose titles start with the
@@ -251,7 +251,7 @@ class Category(Page):
         """
         cls = mwdb.databases.get_database(self.language).get_class('Article')
         return self._member_page_query.filter(
-            cls.title.like(u'%%{0}'.format(string))).yield_per(batch_size)
+            cls.title.like('%%{0}'.format(string))).yield_per(batch_size)
 
     def iter_member_page_contain(self, string, batch_size=42):
         """All pages that belong to this category whose titles contain the

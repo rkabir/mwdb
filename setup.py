@@ -3,13 +3,12 @@
 
 from __future__ import with_statement
 
-from distutils.command.build_py import build_py as _build_py
-from types import StringType, ListType, TupleType
-
-import distutils.core as core
 import sys
 import os.path
 import string
+
+from distutils.command.build_py import build_py as _build_py
+from setuptools import setup
 
 class build_py(_build_py):
     """build_py command
@@ -18,11 +17,11 @@ class build_py(_build_py):
     contains information on installation prefixes afterwards.
     """
     def build_module (self, module, module_file, package):
-        if type(package) is StringType:
-            package = string.split(package, '.')
-        elif type(package) not in (ListType, TupleType):
-            raise TypeError, \
-                  "'package' must be a string (dot-separated), list, or tuple"
+        if isinstance(package, str):
+            package = package.split('.')
+        elif not isinstance(package, (list, tuple)):
+            raise TypeError(
+                "'package' must be a string (dot-separated), list, or tuple")
 
         if ( module == 'build_info' and len(package) == 1 and package[0] == 'mwdb'):
             iobj = self.distribution.command_obj['install']
@@ -36,26 +35,31 @@ class build_py(_build_py):
 
         _build_py.build_module(self, module, module_file, package)
 
-core.setup(name='mwdb',
-           version='0.1a',
-           description='MediaWiki database API',
-           author='Wolodja Wentland',
-           author_email='wentland@cl.uni-heidelberg.de',
-           url='http://github.com/babilen/mwdb',
-           license='GPLv3',
-           packages=['mwdb', 'mwdb.orm', 'mwdb.orm.tables', 'mwdb.mediawiki',
-                    ],
-           package_dir = { '':'lib' },
-           cmdclass={'build_py': build_py },
-           classifiers=[
-               'Development Status :: 3 - Alpha',
-               'Intended Audience :: Developers',
-               'Intended Audience :: Science/Research',
-               'License :: OSI Approved :: GNU General Public License (GPL)'
-               'Programming Language :: Python',
-               'Topic :: Database',
-               'Topic :: Scientific/Engineering',
-               'Topic :: Software Development :: Libraries :: Python Modules',
-               'Topic :: Text Processing',
-           ],
-          )
+extra = {}
+if sys.version_info >= (3,):
+    extra['use_2to3'] = True
+
+setup(name='mwdb',
+      version='0.1a',
+      description='MediaWiki database API',
+      author='Wolodja Wentland',
+      author_email='wentland@cl.uni-heidelberg.de',
+      url='http://github.com/babilen/mwdb',
+      license='GPLv3',
+      packages=['mwdb', 'mwdb.orm', 'mwdb.orm.tables', 'mwdb.mediawiki',
+               ],
+      package_dir = { '':'lib' },
+      cmdclass={'build_py': build_py },
+      classifiers=[
+          'Development Status :: 3 - Alpha',
+          'Intended Audience :: Developers',
+          'Intended Audience :: Science/Research',
+          'License :: OSI Approved :: GNU General Public License (GPL)'
+          'Programming Language :: Python',
+          'Topic :: Database',
+          'Topic :: Scientific/Engineering',
+          'Topic :: Software Development :: Libraries :: Python Modules',
+          'Topic :: Text Processing',
+      ],
+      **extra
+     )

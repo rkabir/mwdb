@@ -72,7 +72,7 @@ class Wikipedia(object):
         try:
             return lang_db.session.query(
                 lang_db.get_class('Article')).filter_by(title=title).one()
-        except orm_exc.NoResultFound, e:
+        except orm_exc.NoResultFound as no_res_err:
             return None
 
     def get_category(self, title):
@@ -81,5 +81,5 @@ class Wikipedia(object):
         try:
             return lang_db.session.query(
                 lang_db.get_class('Category')).filter_by(title=title).one()
-        except orm_exc.NoResultFound, e:
+        except orm_exc.NoResultFound as no_res_err:
             return None

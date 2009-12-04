@@ -91,7 +91,7 @@ class SiteInformation(object):
                     lang = siteinfo['general']['lang']
                     self.languages.add(lang)
                     self._load_namespaces(siteinfo)
-            except (IOError, KeyError), err:
+            except (IOError, KeyError) as err:
                 _log.error('Could not read {0}: {1}'.format(
                     os.path.basename(fp_path), err))
                 continue
@@ -138,7 +138,7 @@ class SiteInformation(object):
         """
         try:
             return self._namespace_names[lang][namespace]
-        except KeyError, k_err:
+        except KeyError as k_err:
             _log.warning('No namespace information available for' \
                        'language: {0}'.format(lang))
             return canonical_namespaces[namespace]

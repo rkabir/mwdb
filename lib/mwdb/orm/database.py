@@ -41,7 +41,7 @@ try:
     ISOLATION_LEVEL_READ_COMMITTED = e.ISOLATION_LEVEL_READ_COMMITTED
     ISOLATION_LEVEL_SERIALIZABLE = e.ISOLATION_LEVEL_SERIALIZABLE
     del e
-except ImportError, imp_err:
+except ImportError as imp_err:
     ISOLATION_LEVEL_AUTOCOMMIT = 0
     ISOLATION_LEVEL_READ_COMMITTED = 1
     ISOLATION_LEVEL_SERIALIZABLE = 2
@@ -465,7 +465,7 @@ class Database(object):
         """Create mappers for this database"""
         try:
             self.classes = mapper.init_mappers(self._metadata, self.language)
-        except KeyError, k_err:
+        except KeyError as k_err:
             _log.error('Could not create mappers: {0}'.format(repr(k_err)))
 
     def reflect(self):
@@ -485,7 +485,7 @@ class Database(object):
             tbl = self.get_table(table_name)
             tbl.drop()
             self.reflect()
-        except KeyError, k_err:
+        except KeyError as k_err:
             _log.debug('{0.name}.{1}: Missing table definition'.format(
                 self, table_name))
             raise ValueError('Undefined Table: {0}'.format(table_name))
@@ -501,7 +501,7 @@ class Database(object):
                 self, table_name))
 
             return self._metadata.tables[table_name]
-        except KeyError, k_err:
+        except KeyError as k_err:
             _log.error('Missing table definition for: {0.name}.{1}'.format(
                 self, table_name))
             raise ValueError('Undefined Table: {0.name}.{1}'.format(
@@ -560,7 +560,7 @@ class PostgreSQLDatabase(Database):
             _log.debug('{0.name}.{1}: Get pkey columns'.format(
                 self, table_name))
             return postgresql_tables.pkey_columns[table_name]
-        except KeyError, k_err:
+        except KeyError as k_err:
             _log.warning('{0.name}.{1}: Undefined pkey columns'.format(
                 self, table_name))
             return None
@@ -571,7 +571,7 @@ class PostgreSQLDatabase(Database):
             _log.debug('{0.name}.{1}: Get index definitions'.format(
                 self, table_name))
             return postgresql_tables.indexed_columns[table_name]
-        except KeyError, k_err:
+        except KeyError as k_err:
             _log.warning('{0.name}.{1}: No indexes defined'.format(
                 self, table_name))
             return None
@@ -599,7 +599,7 @@ class PostgreSQLDatabase(Database):
                 **{
                     str('name'): '{0}_pkey'.format(table_name),
                 })
-        except KeyError, k_err:
+        except KeyError as k_err:
             _log.debug('{0.name}.{1}: Error in pkey definition: {2}'.format(
                 self, table_name, pk_cols))
             raise exceptions.PrimaryKeyConstraintError(
@@ -628,7 +628,7 @@ class PostgreSQLDatabase(Database):
             return [
                 Index('_'.join(icols), *[tbl.c[icol] for icol in icols])
                     for icols in index_defs]
-        except KeyError, k_err:
+        except KeyError as k_err:
             _log.error('{0.name}.{1}: Error in index definition: {2}'.format(
                 self, table_name, index_defs))
             raise exceptions.IndexError(
@@ -698,7 +698,7 @@ class PostgreSQLDatabase(Database):
             if index:
                 self.create_indexes(table_name)
 
-        except KeyError, k_err:
+        except KeyError as k_err:
             _log.debug('{0.name}.{1}: Missing table definition'.format(
                 self, table_name))
             raise ValueError('{0.name}.{1}: Missing table definition'.format(
