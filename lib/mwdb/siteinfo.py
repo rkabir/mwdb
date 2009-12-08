@@ -83,7 +83,7 @@ class SiteInformation(object):
         """Read information from siteinfo json files"""
 
         for fp_path in glob.iglob(os.path.join(build_info.DATA_DIR, 'mwdb',
-                                               'siteinfo' '*.json')):
+                                               'siteinfo', '*.json')):
             _log.debug('Reading site information from: {0}'.format(fp_path))
             try:
                 with open(fp_path) as fp:
