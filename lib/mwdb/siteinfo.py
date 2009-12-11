@@ -88,21 +88,32 @@ class SiteInformation(object):
             try:
                 with open(fp_path) as fp:
                     siteinfo = json.load(fp)['query']
-                    lang = siteinfo['general']['lang']
+                    lang = self._lang_from_json_file(fp_path)
                     self.languages.add(lang)
-                    self._load_namespaces(siteinfo)
+                    self._load_namespaces(siteinfo, lang)
             except (IOError, KeyError) as err:
                 _log.error('Could not read {0}: {1}'.format(
                     os.path.basename(fp_path), err))
                 continue
 
-    def _load_namespaces(self, siteinfo):
+    def _lang_from_json_file(self, path):
+        """Return the language code for json siteinfo file.
+
+        :param path:    Path to siteinfo json file
+        :type path:     str
+        """
+        filename = os.path.basename(path)
+        return os.path.splitext(filename)[0]
+
+    def _load_namespaces(self, siteinfo, language):
         """Load namespace information
 
         :param siteinfo:    Dictionary from siteinfo json file
         :type siteinfo:     dict
+
+        :param language:    Language for which to load namespace information
+        :type language:     str
         """
-        lang = siteinfo['general']['lang']
         lang_ns = {}
 
         for ns_dict in siteinfo['namespaces'].itervalues():
@@ -120,7 +131,7 @@ class SiteInformation(object):
         for alias_dict in siteinfo['namespacealiases']:
             lang_ns.setdefault(alias_dict['id'], set([])).add(alias_dict['*'])
 
-        self._namespace_names[lang] = lang_ns
+        self._namespace_names[language] = lang_ns
 
     def get_namespace_names(self, lang, namespace):
         """Get namespace names.
@@ -139,7 +150,7 @@ class SiteInformation(object):
         try:
             return self._namespace_names[lang][namespace]
         except KeyError as k_err:
-            _log.warning('No namespace information available for' \
+            _log.warning('No namespace information available for ' \
                        'language: {0}'.format(lang))
             return canonical_namespaces[namespace]
 
