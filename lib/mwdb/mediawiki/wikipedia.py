@@ -20,10 +20,15 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import logging
+
 import sqlalchemy.orm.exc as orm_exc
 import mwdb
 
 from . import markup
+
+_log = logging.getLogger(__name__)
+
 
 class Wikipedia(object):
     """Wikipedia in a single language."""
@@ -50,6 +55,12 @@ class Wikipedia(object):
         :type batch_size:   int
         """
         lang_db = mwdb.databases.get_database(self.language)
+
+        if lang_db is None:
+            _log.warning('Database missing for language: {0.language}'.format(
+                self))
+            return None
+
         return lang_db.session.query(lang_db.get_class('Article')).yield_per(
             batch_size)
 
@@ -63,12 +74,24 @@ class Wikipedia(object):
         :type batch_size:   int
         """
         lang_db = mwdb.databases.get_database(self.language)
+
+        if lang_db is None:
+            _log.warning('Database missing for language: {0.language}'.format(
+                self))
+            return None
+
         return lang_db.session.query(lang_db.get_class('Category')).yield_per(
             batch_size)
 
     def get_article(self, title):
         title = markup.wikify(title)
         lang_db = mwdb.databases.get_database(self.language)
+
+        if lang_db is None:
+            _log.warning('Database missing for language: {0.language}'.format(
+                self))
+            return None
+
         try:
             return lang_db.session.query(
                 lang_db.get_class('Article')).filter_by(title=title).one()
@@ -78,6 +101,12 @@ class Wikipedia(object):
     def get_category(self, title):
         title = markup.clean_title(title, self.language, 14)
         lang_db = mwdb.databases.get_database(self.language)
+
+        if lang_db is None:
+            _log.warning('Database missing for language: {0.language}'.format(
+                self))
+            return None
+
         try:
             return lang_db.session.query(
                 lang_db.get_class('Category')).filter_by(title=title).one()
